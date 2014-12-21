@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"strconv"
 	"sync"
 	"time"
 
@@ -45,7 +46,7 @@ func (password *Password) BeforeUpdate() error {
 }
 
 func (passwordPicker *PasswordPicker) PasswordURL(password *Password) string {
-	return (&url.URL{Path: path.Join(passwordPicker.URL, "/passwords", string(password.Id))}).Path
+	return (&url.URL{Path: path.Join("/", "passwords", strconv.Itoa(int(password.Id)))}).Path
 }
 
 func getPasswordPicker(c web.C) *PasswordPicker {
@@ -81,8 +82,9 @@ func main() {
 
 	})
 
-	goji.Get("/", Root)
+	goji.Get("/", showPasswords)
 	goji.Get("/passwords", showPasswords)
+	goji.Get("/passwords/:id", showPassword)
 	goji.Get("/passwords/new", newPassword)
 	goji.Post("/passwords", postPassword)
 
@@ -135,7 +137,7 @@ func showPasswords(c web.C, w http.ResponseWriter, r *http.Request) {
 	db := passwordPicker.DB
 
 	var passwords []Password
-	err := db.Select(&passwords) //, db.OrderBy("Id", genmai.ASC))
+	err := db.Select(&passwords, db.OrderBy("Id", genmai.DESC))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -150,4 +152,27 @@ func showPasswords(c web.C, w http.ResponseWriter, r *http.Request) {
 		passwords[i].URL = passwordPicker.PasswordURL(&passwords[i])
 	}
 	tpl.ExecuteWriter(pongo2.Context{"passwords": passwords}, w)
+}
+
+func showPassword(c web.C, w http.ResponseWriter, r *http.Request) {
+	passwordPicker := getPasswordPicker(c)
+	db := passwordPicker.DB
+
+	var passwords []Password
+	err := db.Select(&passwords, db.From(&Password{}), db.Where("id", "=", c.URLParams["id"]))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var password Password
+	if len(passwords) > 0 {
+		password = passwords[0]
+	}
+	tpl, err := pongo2.DefaultSet.FromFile("show.tpl")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	tpl.ExecuteWriter(pongo2.Context{"password": password}, w)
 }

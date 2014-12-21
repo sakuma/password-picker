@@ -9,7 +9,9 @@
     <h1 class="title">Password Picker</h1>
     <ul>
     {% for password in passwords %}
-    <li>{{ password.Title }} </li>
+    <li>
+    <a href="{{password.URL}}">{{ password.Title }}</a>
+    </li>
     {% endfor %}</ul>
     <hr>
     <a href="/passwords/new">パスワード登録</a>
