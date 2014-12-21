@@ -7,7 +7,7 @@
 
   <body>
     <h1 class="title">「{{ password.Title }}」</h1>
-    <form action="{{ password.UpdateURL }}" method="POST">
+    <form action="{{ password.URL }}" method="POST">
       <p>
         Subject:
         <input id="title" name="title" type="text" value="{{ password.Title }}">
@@ -20,6 +20,7 @@
     </form>
     <hr>
     <a href="/passwords">To Index</a>
+    <a href="/passwords/{{ password.Id }}/delete" onclick="alert('Delete It. OK?');">削除</a>
   </body>
 
 </html>

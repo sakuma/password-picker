@@ -25,7 +25,7 @@ type PasswordPicker struct {
 }
 
 type Password struct {
-	Id    int64  `db:"pk" column:"id"`
+	Id    int    `db:"pk" column:"id"`
 	Title string `column:"title"`
 	Body  string `column:"body"`
 	URL   string `db:"-"`
@@ -46,7 +46,7 @@ func (password *Password) BeforeUpdate() error {
 }
 
 func (passwordPicker *PasswordPicker) PasswordURL(password *Password) string {
-	return (&url.URL{Path: path.Join("/", "passwords", strconv.Itoa(int(password.Id)))}).Path
+	return (&url.URL{Path: path.Join("/", "passwords", strconv.Itoa(password.Id))}).Path
 }
 
 func getPasswordPicker(c web.C) *PasswordPicker {
@@ -88,6 +88,8 @@ func main() {
 	goji.Get("/passwords/new", newPassword)
 	goji.Get("/passwords/:id", showPassword)
 	goji.Post("/passwords/:id", updatePassword)
+	// goji.Delete("/passwords/:id", deletePassword)
+	goji.Get("/passwords/:id/delete", deletePassword)
 
 	goji.Serve()
 }
@@ -209,5 +211,30 @@ func updatePassword(c web.C, w http.ResponseWriter, r *http.Request) {
 		log.Fatalln(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+}
+
+func deletePassword(c web.C, w http.ResponseWriter, r *http.Request) {
+	passwordPicker := getPasswordPicker(c)
+	db := passwordPicker.DB
+	var mutex sync.Mutex
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	var passwords []Password
+	err := db.Select(&passwords, db.From(&Password{}), db.Where("id", "=", c.URLParams["id"]))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	password := passwords[0]
+
+	_, err = db.Delete(&password)
+	if err == nil {
+		http.Redirect(w, r, "/passwords", http.StatusFound)
+	} else {
+		log.Fatal("Failed Delete: ")
+		log.Fatal(c.URLParams["id"])
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
