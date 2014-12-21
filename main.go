@@ -84,9 +84,10 @@ func main() {
 
 	goji.Get("/", showPasswords)
 	goji.Get("/passwords", showPasswords)
-	goji.Get("/passwords/:id", showPassword)
-	goji.Get("/passwords/new", newPassword)
 	goji.Post("/passwords", postPassword)
+	goji.Get("/passwords/new", newPassword)
+	goji.Get("/passwords/:id", showPassword)
+	goji.Post("/passwords/:id", updatePassword)
 
 	goji.Serve()
 }
@@ -165,14 +166,48 @@ func showPassword(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var password Password
-	if len(passwords) > 0 {
-		password = passwords[0]
+	if len(passwords) == 0 {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
 	}
-	tpl, err := pongo2.DefaultSet.FromFile("show.tpl")
+	password := passwords[0]
+	password.URL = passwordPicker.PasswordURL(&password)
+
+	tpl, err := pongo2.DefaultSet.FromFile("password.tpl")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	tpl.ExecuteWriter(pongo2.Context{"password": password}, w)
+}
+
+func updatePassword(c web.C, w http.ResponseWriter, r *http.Request) {
+	passwordPicker := getPasswordPicker(c)
+	db := passwordPicker.DB
+	var mutex sync.Mutex
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	var passwords []Password
+	err := db.Select(&passwords, db.From(&Password{}), db.Where("id", "=", c.URLParams["id"]))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if len(passwords) == 0 {
+		http.Redirect(w, r, "/passwords", http.StatusFound)
+		return
+	}
+	password := passwords[0]
+	password.Title = r.FormValue("title")
+	password.Body = r.FormValue("body")
+	_, err = db.Update(&password)
+	if err == nil {
+		log.Println("Update Successful")
+		http.Redirect(w, r, passwordPicker.PasswordURL(&password), http.StatusFound)
+	} else {
+		log.Fatalln(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

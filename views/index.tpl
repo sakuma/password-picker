@@ -14,7 +14,7 @@
     </li>
     {% endfor %}</ul>
     <hr>
-    <a href="/passwords/new">パスワード登録</a>
+    <a href="/passwords/new">New Password</a>
   </div>
 </body>
 </html>
