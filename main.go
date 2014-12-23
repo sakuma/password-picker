@@ -82,6 +82,7 @@ func main() {
 
 	})
 
+	goji.Get("/assets/*", http.FileServer(http.Dir(".")))
 	goji.Get("/", showPasswords)
 	goji.Get("/passwords", showPasswords)
 	goji.Post("/passwords", postPassword)
