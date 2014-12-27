@@ -30,10 +30,9 @@
       </div>
       <hr>
 
-      <!-- <a href="/passwords/new">New Password</a> -->
+      <button v-if="!visibilityForm" v-on="click: visibleAddPassword">New Password</button>
 
-      <!-- <form action="#" id="new&#45;password" v&#45;on="submit:addPassword"> -->
-      <div>
+      <div v-if="visibilityForm">
         <div class="row">
           <div class="two columns"> <label for="title"> Title: </label> </div>
           <input v-model="newPassword.title" />

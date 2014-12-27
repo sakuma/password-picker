@@ -6,6 +6,7 @@ new Vue({
       this.fetchData();
     },
     data: {
+      visibilityForm: false,
       passwords: [],
       newPassword: {
         title: null,
@@ -42,32 +43,21 @@ new Vue({
             body: JSON.stringify(this.newPassword.body)
           })
           .end(function (res) {
-            // console.log(res);
-            // console.log(res.text);
-            // console.log("-----")
             if (res.status === 200) {
               var password = JSON.parse(res.text);
               password.Body = JSON.parse(password.Body);
               console.log(password);
               self.passwords.unshift(password);
+              self.visibilityForm = false;
             } else {
-              console.log("faile");
+              console.log("failure");
+              console.log(res.text);
             }
           });
         return false;
+      },
+      visibleAddPassword: function () {
+        this.visibilityForm = true;
       }
     }
-    // methods: {
-    //     addUser: function (e) {
-    //         e.preventDefault()
-    //         console.log(this)
-    //         if (this.validation.name && this.validation.email) {
-    //             Users.push(this.newUser)
-    //             this.newUser = {}
-    //         }
-    //     },
-    //     removeUser: function (user) {
-    //         new Firebase(baseURL + 'users/' + user.id).remove()
-    //     }
-    // }
 });
