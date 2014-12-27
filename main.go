@@ -28,6 +28,7 @@ type Password struct {
 	Id    int `db:"pk"`
 	Title string
 	Body  string
+	Note  string
 	URL   string `db:"-"`
 	genmai.TimeStamp
 }

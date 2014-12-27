@@ -10,16 +10,9 @@ new Vue({
       passwords: [],
       newPassword: {
         title: null,
-        key: null,
+        note: null,
         body: [
-          {
-            key: null,
-            value: null
-          },
-          {
-            key: null,
-            value: null
-          }
+          { key: null, value: null },
         ]
       }
     },
@@ -46,7 +39,6 @@ new Vue({
             if (res.status === 200) {
               var password = JSON.parse(res.text);
               password.Body = JSON.parse(password.Body);
-              console.log(password);
               self.passwords.unshift(password);
               self.visibilityForm = false;
             } else {
@@ -56,8 +48,17 @@ new Vue({
           });
         return false;
       },
+
       visibleAddPassword: function () {
         this.visibilityForm = true;
+      },
+
+      addAttribute: function () {
+        this.newPassword.body.push({ key: null, value: null });
+      },
+
+      delAttribute: function () {
+        this.newPassword.body.pop();
       }
     }
 });

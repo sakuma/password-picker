@@ -20,8 +20,8 @@
       <div v-repeat="passwords">
         <div class="row">
           <div class="one columns">{{ Id }}</div>
-          <div class="three columns">{{ Title }}</div>
-          <div class="six columns">
+          <div class="four columns">{{ Title }}</div>
+          <div class="five columns">
             <span v-repeat="Body">
               {{ key }} : {{ value }},
             </span>
@@ -34,8 +34,8 @@
 
       <div v-if="visibilityForm">
         <div class="row">
-          <div class="two columns"> <label for="title"> Title: </label> </div>
-          <input v-model="newPassword.title" />
+          <div class="two columns"><label for="title">Title: </label></div>
+          <input id="title" v-model="newPassword.title" />
         </div>
 
         <div class="row">
@@ -46,16 +46,25 @@
 
         <div v-repeat="newPassword.body">
           <div class="row">
-            <div class="two columns"></div>
-            <div class="two columns"><input v-model="key"></div>
-            <div class="two columns"><input v-model="value"></div>
+            <div class="two columns">&nbsp;</div>
+            <input v-model="key">
+            <input v-model="value">
           </div>
+        </div>
+        <div class="row">
+          <div class="two columns">&nbsp;</div>
+          <button v-on="click:addAttribute">+</button>
+          <button v-if="newPassword.body.length > 1" v-on="click:delAttribute">-</button>
+        </div>
+
+        <div class="row">
+          <div class="two columns"> <label for="note"> Note: </label> </div>
+          <textarea id="note" v-model="newPassword.note"></textarea>
         </div>
 
         <div class="row">
           <div class="two columns">&nbsp;</div>
-          <button v-on="click:addPassword">Save</button>
-          <!-- <input type="submit" value="Save"> -->
+          <button class="button-primary" v-on="click:addPassword">Save</button>
         </div>
       </div>
     </div>
