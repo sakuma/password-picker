@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"log"
 	"net/http"
 	"net/url"
@@ -25,9 +25,9 @@ type PasswordPicker struct {
 }
 
 type Password struct {
-	Id    int    `db:"pk" column:"id"`
-	Title string `column:"title"`
-	Body  string `column:"body"`
+	Id    int `db:"pk"`
+	Title string
+	Body  string
 	URL   string `db:"-"`
 	genmai.TimeStamp
 }
@@ -82,11 +82,10 @@ func main() {
 
 	})
 
+	goji.Get("/", http.FileServer(http.Dir("./public")))
 	goji.Get("/assets/*", http.FileServer(http.Dir(".")))
-	goji.Get("/", showPasswords)
 	goji.Get("/passwords", showPasswords)
 	goji.Post("/passwords", postPassword)
-	goji.Get("/passwords/new", newPassword)
 	goji.Get("/passwords/:id", showPassword)
 	goji.Post("/passwords/:id", updatePassword)
 	// goji.Delete("/passwords/:id", deletePassword)
@@ -95,21 +94,13 @@ func main() {
 	goji.Serve()
 }
 
-func Root(c web.C, w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome Password picker world!")
-}
-
-func newPassword(c web.C, w http.ResponseWriter, r *http.Request) {
-	var password Password
-	tpl, err := pongo2.DefaultSet.FromFile("new.tpl")
+func postPassword(c web.C, w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	var newPassword Password
+	err := decoder.Decode(&newPassword)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
 	}
-	tpl.ExecuteWriter(pongo2.Context{"password": password}, w)
-}
-
-func postPassword(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	passwordPicker := getPasswordPicker(c)
 	db := passwordPicker.DB
@@ -117,23 +108,17 @@ func postPassword(c web.C, w http.ResponseWriter, r *http.Request) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	log.Println("--title")
-	log.Println(r.FormValue("title"))
-	log.Println("--body")
-	log.Println(r.FormValue("body"))
-
-	password := Password{
-		Title: r.FormValue("title"),
-		Body:  r.FormValue("body"),
-	}
-	// TODO: validation
-	_, err := db.Insert(&password)
+	// // TODO: validation
+	_, err = db.Insert(&newPassword)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	http.Redirect(w, r, r.URL.RequestURI(), http.StatusFound)
+	data, _ := json.Marshal(newPassword)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+	// http.Redirect(w, r, r.URL.RequestURI(), http.StatusFound)
 }
 
 func showPasswords(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -147,15 +132,9 @@ func showPasswords(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tpl, err := pongo2.DefaultSet.FromFile("index.tpl")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	for i := range passwords {
-		passwords[i].URL = passwordPicker.PasswordURL(&passwords[i])
-	}
-	tpl.ExecuteWriter(pongo2.Context{"passwords": passwords}, w)
+	data, _ := json.Marshal(passwords)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
 }
 
 func showPassword(c web.C, w http.ResponseWriter, r *http.Request) {

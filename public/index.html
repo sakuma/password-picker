@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>Password Picker</title>
+    <!--
+    <script src="//cdnjs.cloudflare.com/ajax/libs/vue/0.11.4/vue.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/superagent/0.15.7/superagent.min.js"></script>
+    -->
+    <script src="/assets/javascripts/vue.min.js"></script>
+    <script src="/assets/javascripts/superagent.min.js"></script>
+
+    <link href="/assets/stylesheets/normalize.css" media="all" rel="stylesheet" />
+    <link href="/assets/stylesheets/skeleton.css " media="all" rel="stylesheet" />
+  </head>
+
+  <body>
+    <div class="container" id="app">
+      <h1 class="title">Password Picker</h1>
+      <div v-repeat="passwords">
+        <div class="row">
+          <div class="one columns">{{ Id }}</div>
+          <div class="three columns">{{ Title }}</div>
+          <div class="six columns">
+            <span v-repeat="Body">
+              {{ key }} : {{ value }},
+            </span>
+          </div>
+        </div>
+      </div>
+      <hr>
+
+      <!-- <a href="/passwords/new">New Password</a> -->
+
+      <!-- <form action="#" id="new&#45;password" v&#45;on="submit:addPassword"> -->
+      <div>
+        <div class="row">
+          <div class="two columns"> <label for="title"> Title: </label> </div>
+          <input v-model="newPassword.title" />
+        </div>
+
+        <div class="row">
+          <div class="two columns">
+            <label for="body"> Password: </label>
+          </div>
+        </div>
+
+        <div v-repeat="newPassword.body">
+          <div class="row">
+            <div class="two columns"></div>
+            <div class="two columns"><input v-model="key"></div>
+            <div class="two columns"><input v-model="value"></div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="two columns">&nbsp;</div>
+          <button v-on="click:addPassword">Save</button>
+          <!-- <input type="submit" value="Save"> -->
+        </div>
+      </div>
+    </div>
+    <script src="/assets/javascripts/app.js"></script>
+  </body>
+
+</html>
