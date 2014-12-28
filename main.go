@@ -88,11 +88,27 @@ func main() {
 	goji.Get("/passwords", showPasswords)
 	goji.Post("/passwords", postPassword)
 	goji.Get("/passwords/:id", showPassword)
-	goji.Post("/passwords/:id", updatePassword)
+	goji.Put("/passwords/:id", updatePassword)
 	// goji.Delete("/passwords/:id", deletePassword)
 	goji.Get("/passwords/:id/delete", deletePassword)
 
 	goji.Serve()
+}
+
+func showPasswords(c web.C, w http.ResponseWriter, r *http.Request) {
+	passwordPicker := getPasswordPicker(c)
+	db := passwordPicker.DB
+
+	var passwords []Password
+	err := db.Select(&passwords, db.OrderBy("Id", genmai.DESC))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data, _ := json.Marshal(passwords)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
 }
 
 func postPassword(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -122,20 +138,51 @@ func postPassword(c web.C, w http.ResponseWriter, r *http.Request) {
 	// http.Redirect(w, r, r.URL.RequestURI(), http.StatusFound)
 }
 
-func showPasswords(c web.C, w http.ResponseWriter, r *http.Request) {
+func updatePassword(c web.C, w http.ResponseWriter, r *http.Request) {
 	passwordPicker := getPasswordPicker(c)
 	db := passwordPicker.DB
+	var mutex sync.Mutex
+	mutex.Lock()
+	defer mutex.Unlock()
 
 	var passwords []Password
-	err := db.Select(&passwords, db.OrderBy("Id", genmai.DESC))
+	err := db.Select(&passwords, db.From(&Password{}), db.Where("id", "=", c.URLParams["id"]))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	if len(passwords) == 0 {
+		http.Redirect(w, r, "/passwords", http.StatusFound)
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
 
-	data, _ := json.Marshal(passwords)
+	decoder := json.NewDecoder(r.Body)
+	var updatePassword Password
+	err = decoder.Decode(&updatePassword)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	password := passwords[0]
+	password.Title = updatePassword.Title
+	password.Body = updatePassword.Body
+	password.Note = updatePassword.Note
+
+	// TODO: validation
+	_, err = db.Update(&password)
+	if err == nil {
+		log.Println("Update Successful")
+	} else {
+		log.Fatalln(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data, _ := json.Marshal(password)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(data)
+
 }
 
 func showPassword(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -162,37 +209,6 @@ func showPassword(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	tpl.ExecuteWriter(pongo2.Context{"password": password}, w)
-}
-
-func updatePassword(c web.C, w http.ResponseWriter, r *http.Request) {
-	passwordPicker := getPasswordPicker(c)
-	db := passwordPicker.DB
-	var mutex sync.Mutex
-	mutex.Lock()
-	defer mutex.Unlock()
-
-	var passwords []Password
-	err := db.Select(&passwords, db.From(&Password{}), db.Where("id", "=", c.URLParams["id"]))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if len(passwords) == 0 {
-		http.Redirect(w, r, "/passwords", http.StatusFound)
-		return
-	}
-	password := passwords[0]
-	password.Title = r.FormValue("title")
-	password.Body = r.FormValue("body")
-	_, err = db.Update(&password)
-	if err == nil {
-		log.Println("Update Successful")
-		http.Redirect(w, r, passwordPicker.PasswordURL(&password), http.StatusFound)
-	} else {
-		log.Fatalln(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 }
 
 func deletePassword(c web.C, w http.ResponseWriter, r *http.Request) {

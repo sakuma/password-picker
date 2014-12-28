@@ -23,6 +23,7 @@ new Vue({
           var tmp = JSON.parse(res.text);
           for (var i=0; i < tmp.length; ++i) {
             tmp[i].Body = JSON.parse(tmp[i].Body);
+            tmp[i].EditMode = false;
           }
           self.passwords = tmp;
         });
@@ -59,6 +60,36 @@ new Vue({
 
       delAttribute: function () {
         this.newPassword.body.pop();
+      },
+
+      toggleEditMode: function (index) {
+        this.passwords[index].EditMode = !this.passwords[index].EditMode;
       }
     }
+});
+
+Vue.component('password', {
+  template: '#password-template',
+  methods: {
+    updatePassword: function (obj) {
+      var self = obj;
+      window.superagent.put('/passwords/' + self.Id)
+      .send({
+        title: self.Title,
+        body: JSON.stringify(self.Body),
+        note: self.Note
+      })
+      .end(function (res) {
+        if (res.status === 200) {
+          console.log("success")
+          var password = JSON.parse(res.text);
+          password.Body = JSON.parse(password.Body);
+          self.EditMode = false;
+        } else {
+          console.log("failure");
+          console.log(res.text);
+        }
+      });
+    }
+  }
 });

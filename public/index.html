@@ -12,13 +12,46 @@
 
     <link href="/assets/stylesheets/normalize.css" media="all" rel="stylesheet" />
     <link href="/assets/stylesheets/skeleton.css " media="all" rel="stylesheet" />
+
+    <script type="text/x-template" id="password-template">
+      <div class="row">
+        <div class="two columns"><label for="title">Title: </label></div>
+        <input id="title" v-model="Title" />
+      </div>
+      <div class="row">
+        <div class="two columns">
+          <label for="body"> Password: </label>
+        </div>
+      </div>
+      <div v-repeat="Body">
+        <div class="row">
+          <div class="two columns">&nbsp;</div>
+          <input v-model="key">
+          <input v-model="value">
+        </div>
+      </div>
+      <div class="row">
+        <div class="two columns">&nbsp;</div>
+        <button v-on="click: this.Body.push({key: null, value: null})">+</button>
+        <button v-if="Body.length > 1" v-on="click: this.Body.pop()">-</button>
+      </div>
+      <div class="row">
+        <div class="two columns"> <label for="note"> Note: </label> </div>
+        <textarea id="note" v-model="Note"></textarea>
+      </div>
+      <div class="row">
+        <div class="two columns">&nbsp;</div>
+        <button class="button-primary" v-on="click: updatePassword(this)">Update</button>
+        <button v-on="click: EditMode = false">Cancel</button>
+      </div>
+    </script>
   </head>
 
   <body>
     <div class="container" id="app">
       <h1 class="title">Password Picker</h1>
       <div v-repeat="passwords">
-        <div class="row">
+        <div class="row" id="password-{{$index}}" v-if="!EditMode" v-on="click: toggleEditMode($index)">
           <div class="one columns">{{ Id }}</div>
           <div class="four columns">{{ Title }}</div>
           <div class="five columns">
@@ -26,6 +59,9 @@
               {{ key }} : {{ value }},
             </span>
           </div>
+        </div>
+        <div v-if="EditMode" id="edit-password-{{$index}}">
+          <div v-component="password" v-with="passwords[$index]"></div>
         </div>
       </div>
       <hr>
@@ -51,6 +87,7 @@
             <input v-model="value">
           </div>
         </div>
+
         <div class="row">
           <div class="two columns">&nbsp;</div>
           <button v-on="click:addAttribute">+</button>
@@ -65,9 +102,11 @@
         <div class="row">
           <div class="two columns">&nbsp;</div>
           <button class="button-primary" v-on="click:addPassword">Save</button>
+          <button v-on="click: visibilityForm = false">Cancel</button>
         </div>
       </div>
     </div>
+
     <script src="/assets/javascripts/app.js"></script>
   </body>
 
