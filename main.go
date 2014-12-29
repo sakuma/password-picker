@@ -89,8 +89,8 @@ func main() {
 	goji.Post("/passwords", postPassword)
 	goji.Get("/passwords/:id", showPassword)
 	goji.Put("/passwords/:id", updatePassword)
-	// goji.Delete("/passwords/:id", deletePassword)
-	goji.Get("/passwords/:id/delete", deletePassword)
+	goji.Delete("/passwords/:id", deletePassword)
+	// goji.Get("/passwords/:id/delete", deletePassword)
 
 	goji.Serve()
 }
@@ -135,7 +135,6 @@ func postPassword(c web.C, w http.ResponseWriter, r *http.Request) {
 	data, _ := json.Marshal(newPassword)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(data)
-	// http.Redirect(w, r, r.URL.RequestURI(), http.StatusFound)
 }
 
 func updatePassword(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -228,10 +227,13 @@ func deletePassword(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	_, err = db.Delete(&password)
 	if err == nil {
-		http.Redirect(w, r, "/passwords", http.StatusFound)
+		log.Println("Delete Successful.")
+		// http.Redirect(w, r, "/passwords", http.StatusFound)
+		w.Header().Set("Content-Type", "application/json")
 	} else {
 		log.Fatal("Failed Delete: ")
 		log.Fatal(c.URLParams["id"])
+		w.Header().Set("Content-Type", "application/json")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

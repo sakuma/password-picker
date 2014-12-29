@@ -50,6 +50,21 @@ new Vue({
         return false;
       },
 
+      deletePassword: function (passwordId, index) {
+        var self = this;
+        window.superagent.del('/passwords/' + passwordId).send({})
+          .end(function (res) {
+            if (res.status === 200) {
+              console.log("success")
+              // self.passwords.splice(index, 1);
+              // self.visibilityForm = false;
+            } else {
+              console.log("failure");
+              console.log(res.text);
+            }
+          });
+      },
+
       visibleAddPassword: function () {
         this.visibilityForm = true;
       },

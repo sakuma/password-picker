@@ -51,13 +51,16 @@
     <div class="container" id="app">
       <h1 class="title">Password Picker</h1>
       <div v-repeat="passwords">
-        <div class="row" id="password-{{$index}}" v-if="!EditMode" v-on="click: toggleEditMode($index)">
+        <div class="row" id="password-{{$index}}" v-if="!EditMode">
           <div class="one columns">{{ Id }}</div>
-          <div class="four columns">{{ Title }}</div>
+          <div class="four columns" v-on="click: toggleEditMode($index)">{{ Title }}</div>
           <div class="five columns">
             <span v-repeat="Body">
               {{ key }} : {{ value }},
             </span>
+          </div>
+          <div>
+            <button v-on="click: deletePassword(Id, $index)">x</button>
           </div>
         </div>
         <div v-if="EditMode" id="edit-password-{{$index}}">
