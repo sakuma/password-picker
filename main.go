@@ -25,26 +25,53 @@ type PasswordPicker struct {
 }
 
 type Password struct {
-	Id    int `db:"pk"`
-	Title string
-	Body  string
-	Note  string
-	URL   string `db:"-"`
+	Id        int `db:"pk"`
+	Title     string
+	Body      string
+	Attribute Attribute `db:"-"`
+	Note      string
+	URL       string `db:"-"`
 	genmai.TimeStamp
+}
+
+type Attribute []struct {
+	Key, Value string
 }
 
 func (password *Password) BeforeInsert() error {
 	n := time.Now()
 	password.CreatedAt = n
 	password.UpdatedAt = n
+	data, _ := json.Marshal(password.Attribute)
+	password.Body = string(data)
 	return nil
 }
 
 func (password *Password) BeforeUpdate() error {
 	n := time.Now()
 	password.UpdatedAt = n
+	data, _ := json.Marshal(password.Attribute)
+	password.Body = string(data)
 	return nil
 }
+
+// DBに保存するとJSONエンコード
+// func (b Body) Value() driver.Value {
+//   data, _ := json.Marshal(b)
+//   // [{key: a, value: b}, ...]
+//   return data
+// }
+
+// DBから読み込む時はJSONデコード
+// func (b *Body) Scan(src interface{}) error {
+//   switch x := src.(type) {
+//   case []byte:
+//     return json.Unmarshal(x, &b)
+//   case string:
+//     return json.Unmarshal([]byte(x), &b)
+//   }
+//   panic("unsupported type")
+// }
 
 func (passwordPicker *PasswordPicker) PasswordURL(password *Password) string {
 	return (&url.URL{Path: path.Join("/", "passwords", strconv.Itoa(password.Id))}).Path
@@ -90,7 +117,6 @@ func main() {
 	goji.Get("/passwords/:id", showPassword)
 	goji.Put("/passwords/:id", updatePassword)
 	goji.Delete("/passwords/:id", deletePassword)
-	// goji.Get("/passwords/:id/delete", deletePassword)
 
 	goji.Serve()
 }
@@ -106,35 +132,38 @@ func showPasswords(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, _ := json.Marshal(passwords)
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(data)
+	encoder := json.NewEncoder(w)
+	encoder.Encode(passwords)
 }
 
 func postPassword(c web.C, w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
-	var newPassword Password
-	err := decoder.Decode(&newPassword)
+	var password Password
+	err := decoder.Decode(&password)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-
+	// log.Println("---- Decoded")
+	// log.Println(password.Title)
+	// log.Println(password.Attribute)
+	// log.Println(password.Note)
 	passwordPicker := getPasswordPicker(c)
 	db := passwordPicker.DB
 	var mutex sync.Mutex
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	// // TODO: validation
-	_, err = db.Insert(&newPassword)
+	// TODO: validation
+	_, err = db.Insert(&password)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	data, _ := json.Marshal(newPassword)
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(data)
+	encoder := json.NewEncoder(w)
+	encoder.Encode(password)
 }
 
 func updatePassword(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -165,7 +194,7 @@ func updatePassword(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	password := passwords[0]
 	password.Title = updatePassword.Title
-	password.Body = updatePassword.Body
+	password.Attribute = updatePassword.Attribute
 	password.Note = updatePassword.Note
 
 	// TODO: validation
@@ -178,10 +207,9 @@ func updatePassword(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, _ := json.Marshal(password)
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(data)
-
+	encoder := json.NewEncoder(w)
+	encoder.Encode(password)
 }
 
 func showPassword(c web.C, w http.ResponseWriter, r *http.Request) {

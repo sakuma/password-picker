@@ -11,7 +11,7 @@ new Vue({
       newPassword: {
         title: null,
         note: null,
-        body: [
+        attribute: [
           { key: null, value: null },
         ]
       }
@@ -20,9 +20,10 @@ new Vue({
       fetchData: function () {
         var self = this;
         window.superagent.get('/passwords').send().end(function (res) {
+          // console.log(res);
           var tmp = JSON.parse(res.text);
           for (var i=0; i < tmp.length; ++i) {
-            tmp[i].Body = JSON.parse(tmp[i].Body);
+            tmp[i].Attribute = JSON.parse(tmp[i].Body);
             tmp[i].EditMode = false;
           }
           self.passwords = tmp;
@@ -33,13 +34,14 @@ new Vue({
         var self = this;
         window.superagent.post('/passwords')
           .send({
-            title: self.newPassword.title,
-            body: JSON.stringify(this.newPassword.body)
+            title: this.newPassword.title,
+            attribute: this.newPassword.attribute,
+            note: this.newPassword.note
           })
           .end(function (res) {
             if (res.status === 200) {
+              console.log(res)
               var password = JSON.parse(res.text);
-              password.Body = JSON.parse(password.Body);
               self.passwords.unshift(password);
               self.visibilityForm = false;
             } else {
@@ -70,11 +72,12 @@ new Vue({
       },
 
       addAttribute: function () {
-        this.newPassword.body.push({ key: null, value: null });
+        this.newPassword.attribute.push({ key: null, value: null });
+          // console.log(tmp);
       },
 
       delAttribute: function () {
-        this.newPassword.body.pop();
+        this.newPassword.attribute.pop();
       },
 
       toggleEditMode: function (index) {
@@ -91,14 +94,13 @@ Vue.component('password', {
       window.superagent.put('/passwords/' + self.Id)
       .send({
         title: self.Title,
-        body: JSON.stringify(self.Body),
+        attribute: self.Attribute,
         note: self.Note
       })
       .end(function (res) {
         if (res.status === 200) {
           console.log("success")
           var password = JSON.parse(res.text);
-          password.Body = JSON.parse(password.Body);
           self.EditMode = false;
         } else {
           console.log("failure");

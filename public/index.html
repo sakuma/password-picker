@@ -23,17 +23,17 @@
           <label for="body"> Password: </label>
         </div>
       </div>
-      <div v-repeat="Body">
+      <div v-repeat="Attribute">
         <div class="row">
           <div class="two columns">&nbsp;</div>
-          <input v-model="key">
-          <input v-model="value">
+          <input v-model="Key">
+          <input v-model="Value">
         </div>
       </div>
       <div class="row">
         <div class="two columns">&nbsp;</div>
-        <button v-on="click: this.Body.push({key: null, value: null})">+</button>
-        <button v-if="Body.length > 1" v-on="click: this.Body.pop()">-</button>
+        <button v-on="click: this.Attribute.push({Key: null, Value: null})">+</button>
+        <button v-if="Attribute.length > 1" v-on="click: this.Attribute.pop()">-</button>
       </div>
       <div class="row">
         <div class="two columns"> <label for="note"> Note: </label> </div>
@@ -55,7 +55,7 @@
           <div class="one columns">{{ Id }}</div>
           <div class="four columns" v-on="click: toggleEditMode($index)">{{ Title }}</div>
           <div class="five columns">
-            <span v-repeat="Body">
+            <span v-repeat="Attributes">
               {{ key }} : {{ value }},
             </span>
           </div>
@@ -79,11 +79,11 @@
 
         <div class="row">
           <div class="two columns">
-            <label for="body"> Password: </label>
+            <label for="attribute"> Password: </label>
           </div>
         </div>
 
-        <div v-repeat="newPassword.body">
+        <div v-repeat="newPassword.attribute">
           <div class="row">
             <div class="two columns">&nbsp;</div>
             <input v-model="key">
@@ -94,7 +94,7 @@
         <div class="row">
           <div class="two columns">&nbsp;</div>
           <button v-on="click:addAttribute">+</button>
-          <button v-if="newPassword.body.length > 1" v-on="click:delAttribute">-</button>
+          <button v-if="newPassword.attributes.length > 1" v-on="click:delAttribute">-</button>
         </div>
 
         <div class="row">
