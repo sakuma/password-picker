@@ -256,8 +256,9 @@ func deletePassword(c web.C, w http.ResponseWriter, r *http.Request) {
 	_, err = db.Delete(&password)
 	if err == nil {
 		log.Println("Delete Successful.")
-		// http.Redirect(w, r, "/passwords", http.StatusFound)
 		w.Header().Set("Content-Type", "application/json")
+		encoder := json.NewEncoder(w)
+		encoder.Encode(password)
 	} else {
 		log.Fatal("Failed Delete: ")
 		log.Fatal(c.URLParams["id"])

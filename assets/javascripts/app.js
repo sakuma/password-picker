@@ -57,14 +57,14 @@ new Vue({
         window.superagent.del('/passwords/' + passwordId).send({})
           .end(function (res) {
             if (res.status === 200) {
-              console.log("success")
-              // self.passwords.splice(index, 1);
-              // self.visibilityForm = false;
+              self.passwords.splice(index, 1);
+              self.visibilityForm = false;
             } else {
               console.log("failure");
               console.log(res.text);
             }
           });
+        return false;
       },
 
       visibleAddPassword: function () {
