@@ -11,6 +11,8 @@ module.exports = (grunt)->
         src: [
           "bower_components/vue/dist/vue.min.js"
           "bower_components/superagent/superagent.js"
+          "bower_components/jquery/dist/jquery.js"
+          "bower_components/materialize/dist/js/materialize.js"
         ]
         dest: "assets/lib.js"
 
@@ -22,9 +24,9 @@ module.exports = (grunt)->
     cssmin:
       main:
         src: [
-          "assets/css/normalize.css"
-          "assets/css/skeleton.css"
+          "bower_components/materialize/dist/css/materialize.css"
+          "assets/css/style.css"
         ]
-        dest: "assets/lib.min.css"
+        dest: "assets/application.min.css"
 
   grunt.registerTask('default', ['concat', 'uglify', 'cssmin'])
