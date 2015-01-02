@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="ja">
   <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
     <title>Password Picker</title>
     <script src="/assets/lib.min.js"></script>
-    <link href="/assets/lib.min.css" media="all" rel="stylesheet" />
+    <link href="/assets/application.min.css" media="all" rel="stylesheet" />
 
     <script type="text/x-template" id="password-template">
       <div class="row">
@@ -41,68 +42,88 @@
   </head>
 
   <body>
-    <div class="container" id="app">
-      <h1 class="title">Password Picker</h1>
-      <div v-repeat="passwords">
-        <div class="row" id="password-{{$index}}" v-if="!EditMode">
-          <div class="one columns">{{ Id }}</div>
-          <div class="four columns" v-on="click: toggleEditMode($index)">{{ Title }}</div>
-          <div class="five columns">
-            <span v-repeat="Attributes">
-              {{ Key }} : {{ Value }},
-            </span>
-          </div>
-          <div>
-            <button v-on="click: deletePassword(Id, $index)">x</button>
-          </div>
-        </div>
-        <div v-if="EditMode" id="edit-password-{{$index}}">
-          <div v-component="password" v-with="passwords[$index]"></div>
+    <nav class="orange lighten-2" role="navigation">
+      <div class="container">
+        <div class="nav-wrapper"><a id="logo-container" href="#" class="brand-logo">Password Picker</a>
+          <ul id="nav-mobile" class="right side-nav">
+            <li><a href="#">Navbar Link</a></li>
+          </ul>
+          <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="mdi-navigation-menu"></i></a>
         </div>
       </div>
-      <hr>
+    </nav>
+    <div class="container" id="app" >
+      <div class="section">
+        <div v-repeat="passwords">
+          <div class="row card-panel panel-background" id="password-{{$index}}" v-if="!EditMode">
+            <span class="col s12 m1">{{ Id }}</span>
+            <b class="col s12 m5" v-on="click: toggleEditMode($index)">{{ Title }}</b>
+            <small class="col s12 m5"> {{ Note }} </small>
+            <span class="col s12 m1">
+              <button v-on="click: deletePassword(Id, $index)">x</button>
+            </span>
+          </div>
+          <div v-if="EditMode" id="edit-password-{{$index}}">
+            <div v-component="password" v-with="passwords[$index]"></div>
+          </div>
+        </div>
+      </div>
 
-      <button v-if="!visibilityForm" v-on="click: visibleAddPassword">New Password</button>
+      <!-- <button v&#45;if="!visibilityForm" v&#45;on="click: visibleAddPassword">New Password</button> -->
 
-      <div v-if="visibilityForm">
+      <a class="waves-effect waves-light btn modal-trigger" href="#new-password">New Password</a>
+
+      <!-- Modal Structure -->
+      <div id="new-password" class="modal">
+        <h4>Modal Header</h4>
+        <p>A bunch of text</p>
+
         <div class="row">
-          <div class="two columns"><label for="title">Title: </label></div>
-          <input id="title" v-model="newPassword.title" />
+          <div class="col s12 m4"><label for="title">Title: </label></div>
+          <div class="col s12 m4"> <input id="title" v-model="newPassword.title" /></div>
         </div>
 
         <div class="row">
-          <div class="two columns">
+          <div class="col s12 m6">
             <label for="attribute"> Password: </label>
           </div>
         </div>
 
         <div v-repeat="newPassword.attributes">
           <div class="row">
-            <div class="two columns">&nbsp;</div>
-            <input v-model="key">
-            <input v-model="value">
+            <div class="col s12 m6">
+              <input v-model="key">
+            </div>
+            <div class="col s12 m6">
+              <input v-model="value">
+            </div>
           </div>
         </div>
 
         <div class="row">
-          <div class="two columns">&nbsp;</div>
           <button v-on="click:addAttribute">+</button>
           <button v-if="newPassword.attributes.length > 1" v-on="click:delAttribute">-</button>
         </div>
 
         <div class="row">
+
           <div class="two columns"> <label for="note"> Note: </label> </div>
           <textarea id="note" v-model="newPassword.note"></textarea>
         </div>
 
         <div class="row">
           <div class="two columns">&nbsp;</div>
-          <button class="button-primary" v-on="click:addPassword">Save</button>
-          <button v-on="click: visibilityForm = false">Cancel</button>
+          <a href="#" class="btn waves-effect waves-green modal-close" v-on="click:addPassword">Save</a>
+          <a href="#" class="btn waves-effect btn-flat modal-close">Cancel</a>
         </div>
       </div>
     </div>
 
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('.modal-trigger').leanModal();
+      });
+    </script>
     <script src="/assets/js/app.js"></script>
   </body>
 
