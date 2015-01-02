@@ -56,7 +56,7 @@
           <div class="four columns" v-on="click: toggleEditMode($index)">{{ Title }}</div>
           <div class="five columns">
             <span v-repeat="Attributes">
-              {{ key }} : {{ value }},
+              {{ Key }} : {{ Value }},
             </span>
           </div>
           <div>
@@ -83,7 +83,7 @@
           </div>
         </div>
 
-        <div v-repeat="newPassword.attribute">
+        <div v-repeat="newPassword.attributes">
           <div class="row">
             <div class="two columns">&nbsp;</div>
             <input v-model="key">

@@ -11,7 +11,7 @@ new Vue({
       newPassword: {
         title: null,
         note: null,
-        attribute: [
+        attributes: [
           { key: null, value: null },
         ]
       }
@@ -20,10 +20,8 @@ new Vue({
       fetchData: function () {
         var self = this;
         window.superagent.get('/passwords').send().end(function (res) {
-          // console.log(res);
           var tmp = JSON.parse(res.text);
           for (var i=0; i < tmp.length; ++i) {
-            tmp[i].Attribute = JSON.parse(tmp[i].Body);
             tmp[i].EditMode = false;
           }
           self.passwords = tmp;
@@ -35,7 +33,7 @@ new Vue({
         window.superagent.post('/passwords')
           .send({
             title: this.newPassword.title,
-            attribute: this.newPassword.attribute,
+            attributes: this.newPassword.attributes,
             note: this.newPassword.note
           })
           .end(function (res) {
@@ -72,12 +70,12 @@ new Vue({
       },
 
       addAttribute: function () {
-        this.newPassword.attribute.push({ key: null, value: null });
+        this.newPassword.attributes.push({ key: null, value: null });
           // console.log(tmp);
       },
 
       delAttribute: function () {
-        this.newPassword.attribute.pop();
+        this.newPassword.attributes.pop();
       },
 
       toggleEditMode: function (index) {
@@ -94,7 +92,7 @@ Vue.component('password', {
       window.superagent.put('/passwords/' + self.Id)
       .send({
         title: self.Title,
-        attribute: self.Attribute,
+        attributes: self.Attributes,
         note: self.Note
       })
       .end(function (res) {

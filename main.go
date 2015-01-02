@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"path"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -25,12 +26,12 @@ type PasswordPicker struct {
 }
 
 type Password struct {
-	Id        int `db:"pk"`
-	Title     string
-	Body      string
-	Attribute Attribute `db:"-"`
-	Note      string
-	URL       string `db:"-"`
+	Id         int `db:"pk"`
+	Title      string
+	Body       string
+	Attributes Attribute `db:"-"`
+	Note       string
+	URL        string `db:"-"`
 	genmai.TimeStamp
 }
 
@@ -42,7 +43,7 @@ func (password *Password) BeforeInsert() error {
 	n := time.Now()
 	password.CreatedAt = n
 	password.UpdatedAt = n
-	data, _ := json.Marshal(password.Attribute)
+	data, _ := json.Marshal(password.Attributes)
 	password.Body = string(data)
 	return nil
 }
@@ -50,17 +51,10 @@ func (password *Password) BeforeInsert() error {
 func (password *Password) BeforeUpdate() error {
 	n := time.Now()
 	password.UpdatedAt = n
-	data, _ := json.Marshal(password.Attribute)
+	data, _ := json.Marshal(password.Attributes)
 	password.Body = string(data)
 	return nil
 }
-
-// DBに保存するとJSONエンコード
-// func (b Body) Value() driver.Value {
-//   data, _ := json.Marshal(b)
-//   // [{key: a, value: b}, ...]
-//   return data
-// }
 
 // DBから読み込む時はJSONデコード
 // func (b *Body) Scan(src interface{}) error {
@@ -73,6 +67,18 @@ func (password *Password) BeforeUpdate() error {
 //   panic("unsupported type")
 // }
 
+func NewPassword(p *Password) Password {
+	var newPassword Password
+	newPassword.Id = p.Id
+	newPassword.Title = p.Title
+	newPassword.Note = p.Note
+	var a Attribute
+	decoder := json.NewDecoder(strings.NewReader(p.Body))
+	decoder.Decode(&a)
+	newPassword.Attributes = a
+
+	return newPassword
+}
 func (passwordPicker *PasswordPicker) PasswordURL(password *Password) string {
 	return (&url.URL{Path: path.Join("/", "passwords", strconv.Itoa(password.Id))}).Path
 }
@@ -130,6 +136,10 @@ func showPasswords(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+
+	for i, v := range passwords {
+		passwords[i] = NewPassword(&v)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -194,7 +204,7 @@ func updatePassword(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	password := passwords[0]
 	password.Title = updatePassword.Title
-	password.Attribute = updatePassword.Attribute
+	password.Attributes = updatePassword.Attributes
 	password.Note = updatePassword.Note
 
 	// TODO: validation
