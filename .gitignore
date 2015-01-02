@@ -1,2 +1,5 @@
 *.db
 main
+node_modules
+bower_components
+assets/lib.js
