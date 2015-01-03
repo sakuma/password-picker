@@ -1,32 +1,54 @@
 module.exports = (grunt)->
+  pkg = grunt.file.readJSON("package.json")
 
-  grunt.loadNpmTasks("grunt-contrib-concat")
-  grunt.loadNpmTasks("grunt-contrib-uglify")
-  grunt.loadNpmTasks("grunt-contrib-cssmin")
+  for taskName of pkg.devDependencies
+    grunt.loadNpmTasks taskName  if taskName.substring(0, 6) is "grunt-"
 
   grunt.initConfig
-    pkg: grunt.file.readJSON("package.json")
-    concat:
-      dist:
-        src: [
-          "bower_components/vue/dist/vue.min.js"
-          "bower_components/superagent/superagent.js"
-          "bower_components/jquery/dist/jquery.js"
-          "bower_components/materialize/dist/js/materialize.js"
-        ]
-        dest: "assets/lib.js"
+    bower_concat:
+      all:
+        dest: 'tmp/lib.js'
+        cssDest: 'tmp/lib.css'
+        exclude: []
+        bowerOptions:
+          relative: false
 
     uglify:
-      main:
-        src: "<%= concat.dist.dest %>",
-        dest: "assets/lib.min.js"
+      lib:
+        src: "<%= bower_concat.all.dest %>"
+        dest: "public/assets/js/lib.min.js"
+      app:
+        src: "assets/js/*"
+        dest: "public/assets/js/app.min.js"
 
     cssmin:
       main:
         src: [
-          "bower_components/materialize/dist/css/materialize.css"
+          "<%= bower_concat.all.cssDest %>"
           "assets/css/style.css"
         ]
-        dest: "assets/application.min.css"
+        dest: "public/assets/css/application.min.css"
 
-  grunt.registerTask('default', ['concat', 'uglify', 'cssmin'])
+    copy:
+      main:
+        files: [
+          {
+            cwd: 'bower_components/materialize/dist/font/material-design-icons'
+            src: ['*']
+            dest: 'public/assets/font/material-design-icons'
+            expand: true
+          },
+          {
+            cwd: 'bower_components/materialize/dist/font/roboto'
+            src: ['*']
+            dest: 'public/assets/font/roboto'
+            expand: true
+          }
+        ]
+
+    clean: [
+      "<%= bower_concat.all.dest %>"
+      "<%= bower_concat.all.cssDest %>"
+    ]
+
+  grunt.registerTask('default', ['bower_concat', 'uglify', 'cssmin', 'copy', 'clean'])
