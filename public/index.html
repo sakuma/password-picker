@@ -56,10 +56,10 @@
       <div class="section">
         <div v-repeat="passwords">
           <div class="row card-panel panel-background" id="password-{{$index}}" v-if="!EditMode">
-            <span class="col s12 m1">{{ Id }}</span>
-            <b class="col s12 m5" v-on="click: toggleEditMode($index)">{{ Title }}</b>
-            <small class="col s12 m5"> {{ Note }} </small>
-            <span class="col s12 m1">
+            <span class="col m1">{{ Id }}</span>
+            <b class="col m5" v-on="click: toggleEditMode($index)">{{ Title }}</b>
+            <small class="col m5"> {{ Note }} </small>
+            <span class="col m1">
               <button v-on="click: deletePassword(Id, $index)">x</button>
             </span>
           </div>
@@ -69,33 +69,30 @@
         </div>
       </div>
 
-      <!-- <button v&#45;if="!visibilityForm" v&#45;on="click: visibleAddPassword">New Password</button> -->
-
       <a class="waves-effect waves-light btn modal-trigger" href="#new-password">New Password</a>
 
       <!-- Modal Structure -->
       <div id="new-password" class="modal">
-        <h4>Modal Header</h4>
-        <p>A bunch of text</p>
+        <h4>New Password</h4>
 
-        <div class="row">
-          <div class="col s12 m4"><label for="title">Title: </label></div>
-          <div class="col s12 m4"> <input id="title" v-model="newPassword.title" /></div>
+        <div class="row input-field">
+          <label>Title</label>
+          <input type="text" id="title" v-model="newPassword.title" />
         </div>
 
         <div class="row">
-          <div class="col s12 m6">
-            <label for="attribute"> Password: </label>
+          <div class="col m2">
+            <label> Password: Key/Value</label>
           </div>
-        </div>
-
-        <div v-repeat="newPassword.attributes">
-          <div class="row">
-            <div class="col s12 m6">
-              <input v-model="key">
+          <div v-repeat="newPassword.attributes">
+            <div class="col m5" v-class="
+              offset-m2: ($index > 0),
+              attribute-margintop: ($index > 0)
+            ">
+              <input type="text" v-model="key" placeholder="key...">
             </div>
-            <div class="col s12 m6">
-              <input v-model="value">
+            <div class="col m5" v-class="attribute-margintop: ($index > 0)">
+              <input type="text" v-model="value" placeholder="value...">
             </div>
           </div>
         </div>
@@ -105,25 +102,18 @@
           <button v-if="newPassword.attributes.length > 1" v-on="click:delAttribute">-</button>
         </div>
 
-        <div class="row">
-
-          <div class="two columns"> <label for="note"> Note: </label> </div>
-          <textarea id="note" v-model="newPassword.note"></textarea>
+        <div class="row input-field">
+          <label>Note</label>
+          <textarea v-model="newPassword.note"></textarea>
         </div>
 
         <div class="row">
-          <div class="two columns">&nbsp;</div>
-          <a href="#" class="btn waves-effect waves-green modal-close" v-on="click:addPassword">Save</a>
-          <a href="#" class="btn waves-effect btn-flat modal-close">Cancel</a>
+          <a href="#" class="btn waves-effect waves-green modal-close col offset-m2 m2" v-on="click:addPassword">Save</a>
+          <a href="#" class="btn waves-effect btn-flat modal-close col offset-m1 m2">Cancel</a>
         </div>
       </div>
     </div>
 
-    <script type="text/javascript">
-      $(document).ready(function(){
-        $('.modal-trigger').leanModal();
-      });
-    </script>
     <script src="/assets/js/app.js"></script>
   </body>
 

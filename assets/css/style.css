@@ -9,3 +9,7 @@ body {
 .modal {
   background-color: #ffffff;
 }
+
+.attribute-margintop {
+  margin-top: 10px;
+}

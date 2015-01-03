@@ -108,3 +108,7 @@ Vue.component('password', {
     }
   }
 });
+
+$(document).ready(function(){
+  $('.modal-trigger').leanModal();
+});
