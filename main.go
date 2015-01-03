@@ -116,13 +116,12 @@ func main() {
 
 	})
 
-	goji.Get("/", http.FileServer(http.Dir("./public")))
-	goji.Get("/assets/*", http.FileServer(http.Dir(".")))
 	goji.Get("/passwords", showPasswords)
 	goji.Post("/passwords", postPassword)
 	goji.Get("/passwords/:id", showPassword)
 	goji.Put("/passwords/:id", updatePassword)
 	goji.Delete("/passwords/:id", deletePassword)
+	goji.Get("/*", http.FileServer(http.Dir("public/")))
 
 	goji.Serve()
 }
