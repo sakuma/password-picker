@@ -111,5 +111,6 @@ Vue.component('password', {
 });
 
 $(document).ready(function(){
+  $(".button-collapse").sideNav();
   $('.modal-trigger').leanModal();
 });
