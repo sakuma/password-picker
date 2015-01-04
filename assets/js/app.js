@@ -6,7 +6,6 @@ new Vue({
       this.fetchData();
     },
     data: {
-      visibilityForm: false,
       passwords: [],
       newPassword: {
         title: null,
@@ -41,7 +40,6 @@ new Vue({
               console.log(res)
               var password = JSON.parse(res.text);
               self.passwords.unshift(password);
-              self.visibilityForm = false;
             } else {
               console.log("failure");
               console.log(res.text);
@@ -56,17 +54,12 @@ new Vue({
           .end(function (res) {
             if (res.status === 200) {
               self.passwords.splice(index, 1);
-              self.visibilityForm = false;
             } else {
               console.log("failure");
               console.log(res.text);
             }
           });
         return false;
-      },
-
-      visibleAddPassword: function () {
-        this.visibilityForm = true;
       },
 
       addAttribute: function () {
