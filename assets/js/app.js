@@ -29,23 +29,31 @@ new Vue({
 
       addPassword: function () {
         var self = this;
+        var newPassword = self.newPassword
         window.superagent.post('/passwords')
           .send({
-            title: this.newPassword.title,
-            attributes: this.newPassword.attributes,
-            note: this.newPassword.note
+            title: newPassword.title,
+            attributes: newPassword.attributes,
+            note: newPassword.note
           })
           .end(function (res) {
             if (res.status === 200) {
               console.log(res)
               var password = JSON.parse(res.text);
-              self.passwords.$set(0, password);
+              self.passwords.unshift(password);
+              self.resetNewPassword(newPassword)
             } else {
               console.log("failure");
               console.log(res.text);
             }
           });
         return false;
+      },
+
+      resetNewPassword: function (self) {
+        self.title = null;
+        self.note = null;
+        self.attributes = [ { key: null, value: null } ];
       },
 
       deletePassword: function (password, index) {

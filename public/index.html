@@ -35,8 +35,8 @@
         </div>
       </div>
       <div class="row">
-        <a href="#" class="col offset-m1 btn" v-on="click: updatePassword(this)">Update</a>
-        <a href="#" class="col offset-m1 btn btn-flat" v-on="click: EditMode = false">Cancel</a>
+        <span class="col offset-m1 btn" v-on="click: updatePassword(this)">Update</span>
+        <span class="col offset-m1 btn btn-flat" v-on="click: EditMode = false">Cancel</span>
       </div>
     </script>
   </head>
@@ -64,9 +64,10 @@
               <strong> {{ Title }} </strong>
             </div>
             <div v-if="EditMode" style="margin-top: 10px;" id="edit-password-{{$index}}">
-              <span class="btn red" v-on="click: deletePassword(passwords[$index], $index)">Remove</span>
-
               <div style="background-color: #f1f1f1;" v-component="password" v-with="passwords[$index]"></div>
+              <span class="btn btn-floating red" v-on="click: deletePassword(passwords[$index], $index)">
+                <i class="mdi-content-remove"></i>
+              </span>
             </div>
           </div>
         </div>
@@ -113,8 +114,8 @@
         </div>
 
         <div class="row">
-          <a href="#" class="btn waves-effect waves-green modal-close col offset-m2 m2" v-on="click:addPassword">Save</a>
-          <a href="#" class="btn waves-effect btn-flat modal-close col offset-m1 m2">Cancel</a>
+          <span class="btn waves-effect waves-green modal-close col offset-m2 m2" v-on="click: addPassword">Save</span>
+          <span class="btn waves-effect btn-flat modal-close col offset-m1 m2" v-on="click: resetNewPassword(newPassword)">Cancel</span>
         </div>
       </div>
     </div>
