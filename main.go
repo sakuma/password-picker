@@ -11,8 +11,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/flosch/pongo2"
-	_ "github.com/flosch/pongo2-addons"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/naoina/genmai"
 	"github.com/zenazn/goji"
@@ -97,14 +95,10 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// setup pongo
-	pongo2.DefaultSet.SetBaseDirectory("views")
-
 	passwordPicker := &PasswordPicker{
 		URL: "/",
 		DB:  db,
 	}
-	pongo2.Globals["passwordPicker"] = passwordPicker
 	goji.Use(middleware.Recoverer)
 	goji.Use(middleware.NoCache)
 	goji.Use(func(c *web.C, h http.Handler) http.Handler {
@@ -231,20 +225,15 @@ func showPassword(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	if len(passwords) == 0 {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	password := passwords[0]
-	password.URL = passwordPicker.PasswordURL(&password)
 
-	tpl, err := pongo2.DefaultSet.FromFile("password.tpl")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	tpl.ExecuteWriter(pongo2.Context{"password": password}, w)
+	password := NewPassword(&passwords[0])
+	w.Header().Set("Content-Type", "application/json")
+	encoder := json.NewEncoder(w)
+	encoder.Encode(password)
 }
 
 func deletePassword(c web.C, w http.ResponseWriter, r *http.Request) {

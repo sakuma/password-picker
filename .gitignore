@@ -1,4 +1,5 @@
 *.db
+tmp
 main
 node_modules
 bower_components
