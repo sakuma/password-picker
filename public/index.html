@@ -8,68 +8,73 @@
     <link href="/assets/css/application.min.css" media="all" rel="stylesheet" />
 
     <script type="text/x-template" id="password-template">
-      <div class="row">
-        <div class="two columns"><label for="title">Title: </label></div>
-        <input id="title" v-model="Title" />
-      </div>
-      <div class="row">
-        <div class="two columns">
-          <label for="body"> Password: </label>
-        </div>
-      </div>
-      <div v-repeat="Attribute">
-        <div class="row">
-          <div class="two columns">&nbsp;</div>
-          <input v-model="Key">
-          <input v-model="Value">
+      <div class="row input-field">
+        <div class="col offset-m1 m10">
+          <input type="text" v-model="Title" />
         </div>
       </div>
       <div class="row">
-        <div class="two columns">&nbsp;</div>
-        <button v-on="click: this.Attribute.push({Key: null, Value: null})">+</button>
-        <button v-if="Attribute.length > 1" v-on="click: this.Attribute.pop()">-</button>
+        <div v-repeat="Attributes">
+          <div class="col offset-m1 m5">
+            <input type="text" v-model="Key" placeholder="key...">
+          </div>
+          <div class="col m5">
+            <input type="text" v-model="Value" placeholder="value...">
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col offset-m1">&nbsp;</div>
+        <button v-on="click: this.Attributes.push({Key: null, Value: null})">+</button>
+        <button v-if="Attributes.length > 1" v-on="click: this.Attributes.pop()">-</button>
       </div>
       <div class="row">
-        <div class="two columns"> <label for="note"> Note: </label> </div>
-        <textarea id="note" v-model="Note"></textarea>
+        <div class="col offset-m1 m10">
+          <textarea id="note" v-model="Note"></textarea>
+        </div>
       </div>
       <div class="row">
-        <div class="two columns">&nbsp;</div>
-        <button class="button-primary" v-on="click: updatePassword(this)">Update</button>
-        <button v-on="click: EditMode = false">Cancel</button>
+        <a href="#" class="col offset-m1 btn" v-on="click: updatePassword(this)">Update</a>
+        <a href="#" class="col offset-m1 btn btn-flat" v-on="click: EditMode = false">Cancel</a>
       </div>
     </script>
   </head>
 
   <body>
-    <nav class="orange lighten-2" role="navigation">
+    <nav class="blue" role="navigation">
       <div class="container">
-        <div class="nav-wrapper"><a id="logo-container" href="#" class="brand-logo">Password Picker</a>
+        <div class="nav-wrapper">
+          <a id="logo-container" href="/" class="brand-logo">Key Stocker</a>
           <ul id="nav-mobile" class="right side-nav">
             <li><a href="#">Navbar Link</a></li>
           </ul>
-          <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="mdi-navigation-menu"></i></a>
+          <a href="#" data-activates="nav-mobile" class="button-collapse">
+            <i class="mdi-navigation-menu"></i>
+          </a>
         </div>
       </div>
     </nav>
     <div class="container" id="app" >
       <div class="section">
         <div v-repeat="passwords">
-          <div class="row card-panel panel-background" id="password-{{$index}}" v-if="!EditMode">
-            <span class="col m1">{{ Id }}</span>
-            <b class="col m5" v-on="click: toggleEditMode($index)">{{ Title }}</b>
-            <small class="col m5"> {{ Note }} </small>
-            <span class="col m1">
-              <button v-on="click: deletePassword(Id, $index)">x</button>
-            </span>
-          </div>
-          <div v-if="EditMode" id="edit-password-{{$index}}">
-            <div v-component="password" v-with="passwords[$index]"></div>
+          <div class="card-panel panel-background" id="password-{{$index}}">
+            <div v-on="click: toggleEditMode($index)">
+              {{ Id }}:
+              <strong> {{ Title }} </strong>
+            </div>
+            <div v-if="EditMode" style="margin-top: 10px;" id="edit-password-{{$index}}">
+              <span class="btn red" v-on="click: deletePassword(passwords[$index], $index)">Remove</span>
+
+              <div style="background-color: #f1f1f1;" v-component="password" v-with="passwords[$index]"></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <a class="waves-effect waves-light btn modal-trigger" href="#new-password">New Password</a>
+      <a class="waves-effect waves-light btn-floating modal-trigger" href="#new-password">
+        <i class="mdi-content-add"></i>
+      </a>
 
       <!-- Modal Structure -->
       <div id="new-password" class="modal">

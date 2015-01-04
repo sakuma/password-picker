@@ -39,7 +39,7 @@ new Vue({
             if (res.status === 200) {
               console.log(res)
               var password = JSON.parse(res.text);
-              self.passwords.unshift(password);
+              self.passwords.$set(0, password);
             } else {
               console.log("failure");
               console.log(res.text);
@@ -48,13 +48,14 @@ new Vue({
         return false;
       },
 
-      deletePassword: function (passwordId, index) {
-        var self = this;
-        window.superagent.del('/passwords/' + passwordId).send({})
+      deletePassword: function (password, index) {
+        var vm = this;
+        window.superagent.del('/passwords/' + password.Id).send({})
           .end(function (res) {
             if (res.status === 200) {
-              self.passwords.splice(index, 1);
+              vm.passwords.$remove(index);
             } else {
+              // TODO: toast
               console.log("failure");
               console.log(res.text);
             }
@@ -63,8 +64,7 @@ new Vue({
       },
 
       addAttribute: function () {
-        this.newPassword.attributes.push({ key: null, value: null });
-          // console.log(tmp);
+        this.newPassword.attributes.$add({ key: null, value: null });
       },
 
       delAttribute: function () {
