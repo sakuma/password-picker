@@ -4,5 +4,5 @@ guard 'go', :server => 'main.go', :args => ['a'] do
 end
 
 guard :shell do
-  watch(%r{assets/(css|js)/*}) { `grunt` }
+  watch(%r{\.(css|js)}) { `grunt` }
 end
